@@ -1,3 +1,3 @@
-# run in smart-hub root directory
+#!/bin/bash
 
 mkdir -p ./data/n8n/backup
