@@ -1,1 +1,13 @@
 # Smart Hub
+
+## Description
+Taking the best of AI tools and combining them to create a powerful automation tool.
+
+`Automation Hub` is uses n8n and other tools to automate the process of creating and managing the automation workflows.
+taken from [n8n-io/self-hosted-ai-starter-kit](https://github.com/n8n-io/self-hosted-ai-starter-kit)
+
+`Open Web UI` is a web interface that allows users to create and manage automation workflows. taken from 
+[Open Web UI](https://openwebui.com/)
+
+ Find Docs here: [Docs](https://docs.openwebui.com/)
+

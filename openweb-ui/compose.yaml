@@ -1,0 +1,29 @@
+volumes:
+  ollama_storage:
+  open-webui:
+
+networks:
+  shared:
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:ollama
+    networks: ['shared']
+    container_name: open-webui
+    volumes:
+      - ollama_storage:/root/.ollama
+      - open-webui:/app/backend/data
+    network_mode: "host"
+    environment:
+      - OLLAMA_BASE_URL=http://127.0.0.1:11434
+    restart: always
+
+  watchtower:
+    image: containrrr/watchtower
+    networks: ['shared']
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --run-once open-webui
+    restart: "no"
+
