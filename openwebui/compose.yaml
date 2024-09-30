@@ -2,7 +2,6 @@ volumes:
   ollama_storage:
   open-webui:
 
-
 services:
   open-webui:
     image: ghcr.io/open-webui/open-webui:ollama
@@ -27,4 +26,3 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --run-once open-webui
     restart: "no"
-
