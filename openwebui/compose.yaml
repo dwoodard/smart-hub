@@ -21,7 +21,7 @@ services:
   watchtower:
     image: containrrr/watchtower
     networks: ['shared']
-    container_name: watchtower
+    container_name: watchtower_open-webui
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --run-once open-webui
