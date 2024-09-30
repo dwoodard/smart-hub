@@ -8,13 +8,18 @@ networks:
 services:
   open-webui:
     image: ghcr.io/open-webui/open-webui:ollama
-    networks: ['shared']
     container_name: open-webui
+    networks: ['shared']
+    ports:
+      - 3000:8080
     volumes:
       - ollama_storage:/root/.ollama
       - open-webui:/app/backend/data
+    extra_hosts:
+        - "host.docker.internal:host-gateway"
     network_mode: "host"
     environment:
+      - "host.docker.internal:host-gateway"
       - OLLAMA_BASE_URL=http://172.17.0.1:11434
     restart: always
 
