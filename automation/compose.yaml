@@ -5,13 +5,8 @@ volumes:
   ollama_storage:
   qdrant_storage:
 
-networks:
-  shared:
-
-
 x-n8n: &service-n8n
   image: n8nio/n8n:latest
-  networks: ['shared']
   environment:
     - DB_TYPE=postgresdb
     - DB_POSTGRESDB_HOST=postgres
@@ -28,7 +23,6 @@ x-n8n: &service-n8n
 x-ollama: &service-ollama
   image: ollama/ollama:latest
   container_name: ollama
-  networks: ['shared']
   restart: unless-stopped
   ports:
     - 11434:11434
@@ -37,7 +31,6 @@ x-ollama: &service-ollama
 
 x-init-ollama: &init-ollama
   image: ollama/ollama:latest
-  networks: ['shared']
   container_name: ollama-pull-llama
   volumes:
     - ollama_storage:/root/.ollama
@@ -55,7 +48,6 @@ x-init-ollama: &init-ollama
 services:
   postgres:
     image: postgres:16-alpine
-    networks: ['shared']
     restart: unless-stopped
     ports:
       - 5433:5432
@@ -104,7 +96,6 @@ services:
   qdrant:
     image: qdrant/qdrant
     container_name: qdrant
-    networks: ['shared']
     restart: unless-stopped
     ports:
       - 6333:6333

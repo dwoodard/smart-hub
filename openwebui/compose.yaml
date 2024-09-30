@@ -2,14 +2,11 @@ volumes:
   ollama_storage:
   open-webui:
 
-networks:
-  shared:
 
 services:
   open-webui:
     image: ghcr.io/open-webui/open-webui:ollama
     container_name: open-webui
-    networks: ['shared']
     ports:
       - 3000:8080
     volumes:
@@ -25,7 +22,6 @@ services:
 
   watchtower:
     image: containrrr/watchtower
-    networks: ['shared']
     container_name: watchtower_open-webui
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
