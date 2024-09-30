@@ -25,7 +25,7 @@ x-ollama: &service-ollama
   container_name: ollama
   restart: unless-stopped
   ports:
-    - 11434:11434
+    - 11435:11434
   volumes:
     - ollama_storage:/root/.ollama
 
@@ -70,7 +70,7 @@ services:
     entrypoint: /bin/sh
     command:
       - "-c"
-      - "env && n8n import:credentials --separate --input=/backup/credentials && n8n import:workflow --separate --input=/backup/workflows"
+      - "n8n import:credentials --separate --input=/backup/credentials && n8n import:workflow --separate --input=/backup/workflows"
     volumes:
       - ../data/n8n/backup:/backup
     depends_on:
