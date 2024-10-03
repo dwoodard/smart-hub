@@ -40,7 +40,7 @@ services:
     restart: unless-stopped
     ports:
       - "5433:5432"
-    env_file: ../.env
+    env_file: .env
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-root}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-root}
