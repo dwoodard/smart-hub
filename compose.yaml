@@ -1,11 +1,14 @@
-version: '3'
+networks:
+  webui-network:  # Define the custom network
 
 volumes:
   n8n_storage:
   postgres_storage:
   ollama_storage:
   qdrant_storage:
-  open-webui:  # Keep the open-webui volume for the backend data
+  open-webui:
+  n8n_backup:
+  shared_storage:
 
 services:
   # Open Web UI Service
@@ -15,29 +18,18 @@ services:
     ports:
       - "3000:8080"
     volumes:
-      - ./data/modles:/root/.ollama
+      - ollama_storage:/root/.ollama
       - open-webui:/app/backend/data
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    network_mode: "host"
     environment:
-      - "host.docker.internal:host-gateway"
       - OLLAMA_BASE_URL=http://ollama:11434
+    networks:
+      - webui-network
     restart: always
-
-  # Watchtower service to manage open-webui updates
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower_open-webui
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --run-once open-webui
-    restart: "no"
 
   # Postgres Database for n8n
   postgres:
     image: postgres:16-alpine
-    restart: unless-stopped
+    restart: always
     ports:
       - "5433:5432"
     env_file: .env
@@ -47,25 +39,13 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-n8n}
     volumes:
       - postgres_storage:/var/lib/postgresql/data
+    networks:
+      - webui-network
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER:-root} -d ${POSTGRES_DB:-n8n}']
       interval: 5s
       timeout: 5s
       retries: 10
-
-  # n8n Import Service
-  n8n-import:
-    image: n8nio/n8n:latest
-    container_name: n8n-import
-    entrypoint: /bin/sh
-    command:
-      - "-c"
-      - "n8n import:credentials --separate --input=/backup/credentials && n8n import:workflow --separate --input=/backup/workflows"
-    volumes:
-      - ../data/n8n/backup:/backup
-    depends_on:
-      postgres:
-        condition: service_healthy
 
   # Main n8n Service
   n8n:
@@ -81,54 +61,44 @@ services:
       - N8N_ENCRYPTION_KEY
       - N8N_USER_MANAGEMENT_JWT_SECRET
       - N8N_SECURE_COOKIE=false
-    restart: unless-stopped
+    restart: always
     ports:
       - "5678:5678"
     volumes:
       - n8n_storage:/home/node/.n8n
-      - ../data/n8n/backup:/backup
-      - ../data/shared:/data/shared
+      - n8n_backup:/backup
+      - shared_storage:/data/shared
+    networks:
+      - webui-network  # Add the same network here
     depends_on:
       postgres:
         condition: service_healthy
-      n8n-import:
-        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5678 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   # Ollama Service
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
-    restart: unless-stopped
     ports:
-      - "11435:11434"
+      - "11434:11434"  # Ensure the port mapping is correct
     volumes:
       - ollama_storage:/root/.ollama
+    networks:
+      - webui-network  # Ensure this service is on the same network
+    restart: always
 
   # Qdrant Vector Database
   qdrant:
     image: qdrant/qdrant
     container_name: qdrant
-    restart: unless-stopped
+    restart: always
     ports:
       - "6333:6333"
     volumes:
       - qdrant_storage:/qdrant/storage
-
-  # Ollama Pull for Pre-trained Models
-  ollama-pull-llama:
-    image: ollama/ollama:latest
-    container_name: ollama-pull-llama
-    volumes:
-      - ollama_storage:/root/.ollama
-    entrypoint: /bin/sh
-    command:
-      - "-c"
-      - |
-          sleep 3;
-          OLLAMA_HOST=ollama:11434 ollama pull llama3.1;
-          OLLAMA_HOST=ollama:11434 ollama pull llama3.2;
-          OLLAMA_HOST=ollama:11434 ollama run llama3.2:1b;
-          OLLAMA_HOST=ollama:11434 ollama pull nomic-embed-text;
-          OLLAMA_HOST=ollama:11434 ollama pull tinyllama;
-    depends_on:
-      - ollama
+    networks:
+      - webui-network
