@@ -1,0 +1,183 @@
+{
+  "name": "sentement workflow with webhooks",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "llama-3.1-70b-versatile",
+        "options": {}
+      },
+      "id": "cdcfabf3-d841-42b0-85c7-7d81d22656a7",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        800,
+        440
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "r9tFl5toGdtPeMsB",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"sentiment\": {\n      \"type\": \"string\",\n      \"enum\": [\"positive\", \"negative\", \"neutral\"]\n    }\n  },\n  \"required\": [\"sentiment\"]\n}\n"
+      },
+      "id": "cc2e49a9-5bed-41dc-ac40-c981bdeb9aa2",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1080,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"sentiment\": \"{{ $json.output.sentiment }}\"\n}",
+        "options": {}
+      },
+      "id": "4cc98a29-1ffd-4d95-8a23-1827ffd06a03",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.review }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Your role to determine if a review is positive negative or neutral"
+            }
+          ]
+        }
+      },
+      "id": "2e036a24-bdde-4baa-85f4-867c0ebc1634",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        900,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "41b87ba6-ab2b-4fc8-bb7c-43d5a1f18a00",
+      "name": "Ollama Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        800,
+        580
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "O4Of7rfpDGBXAM44",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "2b4784d7-f94b-4f47-909c-9d4ef0a2717f",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        800,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sentiment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "89535316-8feb-4cbd-a0fe-6745352c1b08",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        620,
+        80
+      ],
+      "webhookId": "1af788ca-af12-4f16-8e54-a9bcfa397d46"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0df9f45a-294c-4781-b23f-6ff795553520",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "77ba766bf9412c8681083b38ac81c2fd35d1cfa6a8699e8dd520b5a83e64ef39"
+  },
+  "id": "zrM3qPwnJcRu9oWJ",
+  "tags": []
+}
