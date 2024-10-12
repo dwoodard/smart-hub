@@ -102,3 +102,13 @@ services:
       - qdrant_storage:/qdrant/storage
     networks:
       - webui-network
+
+  # SearxNG Service
+  searxng:
+    image: searxng/searxng
+    container_name: searxng
+    ports:
+      - "8888:8080"
+    networks:
+      - webui-network
+    restart: always
