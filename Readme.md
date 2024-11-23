@@ -38,5 +38,5 @@
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/<your-repo>/smart-hub.git
+   git clone https://github.com/dwoodard/smart-hub.git
    cd smart-hub
