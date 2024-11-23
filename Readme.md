@@ -40,3 +40,4 @@
    ```bash
    git clone https://github.com/dwoodard/smart-hub.git
    cd smart-hub
+   docker compose up -d
