@@ -1,5 +1,6 @@
 networks:
-  webui-network:  # Define the custom network
+  webui-network:
+    # Define the custom network
 
 volumes:
   n8n_storage:
@@ -9,6 +10,7 @@ volumes:
   open-webui:
   n8n_backup:
   shared_storage:
+
 
 services:
   # Open Web UI Service
@@ -42,7 +44,7 @@ services:
     networks:
       - webui-network
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER:-root} -d ${POSTGRES_DB:-n8n}']
+      test: [ 'CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER:-root} -d ${POSTGRES_DB:-n8n}' ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -69,12 +71,12 @@ services:
       - n8n_backup:/backup
       - shared_storage:/data/shared
     networks:
-      - webui-network  # Add the same network here
+      - webui-network # Add the same network here
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5678 || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:5678 || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -84,11 +86,18 @@ services:
     image: ollama/ollama:latest
     container_name: ollama
     ports:
-      - "11434:11434"  # Ensure the port mapping is correct
+      - "11434:11434" # Ensure the port mapping is correct
     volumes:
       - ollama_storage:/root/.ollama
+    command:
+      - "-c"
+      - |
+        sleep 3;
+        OLLAMA_HOST=ollama:11434 ollama pull llama3.2;
+        OLLAMA_HOST=ollama:11434 ollama run llama3.2:1b;
+        OLLAMA_HOST=ollama:11434 ollama pull nomic-embed-text;
     networks:
-      - webui-network  # Ensure this service is on the same network
+      - webui-network # Ensure this service is on the same network
     restart: always
 
   # Qdrant Vector Database
