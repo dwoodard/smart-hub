@@ -14,19 +14,20 @@ volumes:
 
 services:
   # Open Web UI Service
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:ollama
-    container_name: open-webui
-    ports:
-      - "3000:8080"
-    volumes:
-      - ollama_storage:/root/.ollama
-      - open-webui:/app/backend/data
-    environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-    networks:
-      - webui-network
-    restart: always
+
+  # open-webui:
+  #   image: ghcr.io/open-webui/open-webui:main
+  #   container_name: open-webui
+  #   ports:
+  #     - "3000:8080"
+  #   volumes:
+  #     - ollama_storage:/root/.ollama
+  #     - open-webui:/app/backend/data
+  #   environment:
+  #     - OLLAMA_BASE_URL=http://ollama:11434
+  #   networks:
+  #     - webui-network
+  #   restart: always
 
   # Postgres Database for n8n
   postgres:
@@ -81,24 +82,18 @@ services:
       timeout: 5s
       retries: 3
 
-  # Ollama Service
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
-    ports:
-      - "11434:11434" # Ensure the port mapping is correct
-    volumes:
-      - ollama_storage:/root/.ollama
-    command:
-      - "-c"
-      - |
-        sleep 3;
-        OLLAMA_HOST=ollama:11434 ollama pull llama3.2;
-        OLLAMA_HOST=ollama:11434 ollama run llama3.2:1b;
-        OLLAMA_HOST=ollama:11434 ollama pull nomic-embed-text;
-    networks:
-      - webui-network # Ensure this service is on the same network
-    restart: always
+  # # Ollama Service
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: ollama
+  #   ports:
+  #     - "11434:11434" # Ensure the port mapping is correct
+  #   volumes:
+  #     - ollama_storage:/root/.ollama
+  #   entrypoint: [ "bash", "-c", "sleep 3;ollama pull llama3.2; ollama serve;" ] #ollama pull llama3.2
+  #   networks:
+  #     - webui-network # Ensure this service is on the same network
+  #   restart: always
 
   # Qdrant Vector Database
   qdrant:
@@ -111,13 +106,13 @@ services:
       - qdrant_storage:/qdrant/storage
     networks:
       - webui-network
-
   # SearxNG Service
-  searxng:
-    image: searxng/searxng
-    container_name: searxng
-    ports:
-      - "8888:8080"
-    networks:
-      - webui-network
-    restart: always
+
+  # searxng:
+  #   image: searxng/searxng
+  #   container_name: searxng
+  #   ports:
+  #     - "8888:8080"
+  #   networks:
+  #     - webui-network
+  #   restart: always
