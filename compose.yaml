@@ -64,6 +64,7 @@ services:
       - N8N_ENCRYPTION_KEY
       - N8N_USER_MANAGEMENT_JWT_SECRET
       - N8N_SECURE_COOKIE=false
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false:
     restart: always
     ports:
       - "5678:5678"
