@@ -91,7 +91,7 @@ services:
       - "11434:11434" # Ensure the port mapping is correct
     volumes:
       - ollama_storage:/root/.ollama
-    entrypoint: [ "bash", "-c", "sleep 3;ollama pull llama3.2; ollama serve;" ] #ollama pull llama3.2
+    entrypoint: ["bash", "-c", "sleep 3 && ollama pull llama3.2 && ollama serve"] #ollama pull llama3.2
     networks:
       - webui-network # Ensure this service is on the same network
     restart: always
