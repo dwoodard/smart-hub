@@ -7,11 +7,13 @@
 ### Key Components
 
 #### **Automation Hub**
+
 - **Description**: A feature-rich solution leveraging [n8n](https://n8n.io/) and other integration tools to enable the automation of workflows across various platforms and services.
 - **Purpose**: Automate tasks, connect APIs, and build custom workflows that integrate seamlessly with your tech stack.
 - **Source**: Based on the [n8n-io/self-hosted-ai-starter-kit](https://github.com/n8n-io/self-hosted-ai-starter-kit) repository for self-hosted AI-powered automation.
 
 #### **Open Web UI**
+
 - **Description**: An intuitive web interface empowering users to visually design, manage, and deploy automation workflows.
 - **Purpose**: Simplify the user experience by providing a no-code/low-code environment for workflow creation.
 - **Source**: Powered by [Open Web UI](https://openwebui.com/), with comprehensive documentation available [here](https://docs.openwebui.com/).
@@ -31,13 +33,16 @@
 ## Getting Started
 
 ### Prerequisites
+
 - Docker installed on your system (recommended for self-hosting).
 - Access to the [n8n Self-Hosted AI Starter Kit](https://github.com/n8n-io/self-hosted-ai-starter-kit) and [Open Web UI](https://openwebui.com/).
 
 ### Installation
 
 1. **Clone the Repository**:
+
    ```bash
    git clone https://github.com/dwoodard/smart-hub.git
    cd smart-hub
    docker compose up -d
+   ```
