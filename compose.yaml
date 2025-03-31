@@ -127,3 +127,11 @@ services:
   #   networks:
   #     - webui-network
   #   restart: always
+
+  # Watchtower - Automatically updates running containers
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
