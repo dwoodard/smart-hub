@@ -1,7 +1,3 @@
-networks:
-  webui-network:
-    # Define the custom network
-
 volumes:
   n8n_storage:
   postgres_storage:
@@ -10,6 +6,7 @@ volumes:
   open-webui:
   n8n_backup:
   shared_storage:
+  pipelines:
 
 
 services:
@@ -24,9 +21,11 @@ services:
       - ollama_storage:/root/.ollama
       - open-webui:/app/backend/data
     environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-    networks:
-      - webui-network
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Enables host.docker.internal on Linux
+
+
     restart: always
 
   # Postgres Database for n8n
@@ -42,8 +41,6 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-n8n}
     volumes:
       - postgres_storage:/var/lib/postgresql/data
-    networks:
-      - webui-network
     healthcheck:
       test: [ 'CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER:-root} -d ${POSTGRES_DB:-n8n}' ]
       interval: 5s
@@ -65,6 +62,10 @@ services:
       - N8N_USER_MANAGEMENT_JWT_SECRET
       - N8N_SECURE_COOKIE=false
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Enables host.docker.internal on Linux
+
     restart: always
     ports:
       - "5678:5678"
@@ -72,8 +73,6 @@ services:
       - n8n_storage:/home/node/.n8n
       - n8n_backup:/backup
       - shared_storage:/data/shared
-    networks:
-      - webui-network # Add the same network here
     depends_on:
       postgres:
         condition: service_healthy
@@ -85,6 +84,8 @@ services:
 
   # Ollama Service
   ollama:
+    profiles:
+      - optional
     image: ollama/ollama:latest
     container_name: ollama
     ports:
@@ -92,21 +93,19 @@ services:
     volumes:
       - ollama_storage:/root/.ollama
     # entrypoint: ["bash", "-c", "sleep 3 && ollama pull llama3.2 && ollama serve"] #ollama pull llama3.2
-    networks:
-      - webui-network # Ensure this service is on the same network
     restart: always
 
   # Qdrant Vector Database
-  qdrant:
-    image: qdrant/qdrant
-    container_name: qdrant
-    restart: always
-    ports:
-      - "6333:6333"
-    volumes:
-      - qdrant_storage:/qdrant/storage
-    networks:
-      - webui-network
+  # qdrant:
+  #   image: qdrant/qdrant
+  #   container_name: qdrant
+  #   restart: always
+  #   ports:
+  #     - "6333:6333"
+  #   volumes:
+  #     - qdrant_storage:/qdrant/storage
+  #   networks:
+  #     - webui-network
 
   # SearxNG Service
   searxng:
@@ -114,6 +113,17 @@ services:
     container_name: searxng
     ports:
       - "8888:8080"
-    networks:
-      - webui-network
     restart: always
+
+  # pipelines:
+  #   image: ghcr.io/open-webui/pipelines:main
+  #   container_name: pipelines
+  #   ports:
+  #     - "9099:9099"
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"  # maps host.docker.internal to the host gateway
+  #   volumes:
+  #     - pipelines:/app/pipelines
+  #   networks:
+  #     - webui-network
+  #   restart: always
